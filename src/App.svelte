@@ -1,104 +1,103 @@
 <script lang="ts">
-  import { onMount, onDestroy } from "svelte";
-  let canvas;
-  let ctx;
-  let val = 20;
-  onMount(() => {
-    ctx = canvas.getContext("2d");
+	import { onMount, onDestroy } from "svelte";
+	let canvas;
+	let ctx;
+	let val = 20;
+	let lineWidth = val / 10;
 
-    canvas.height = val * 34;
-    canvas.width = val * 26;
-	
-	ctx.translate(2 , 10);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+	onMount(() => {
+		ctx = canvas.getContext("2d");
 
-    pool(ctx);
-  });
+		canvas.height = val * 32 + 3 + lineWidth;
+		canvas.width = val * 22 + 3 + lineWidth;
 
-  const pool = (ctx) => {
-    circumference1(ctx);
-	circumference(ctx);
-    // vertical_grid(ctx);
-    //horizontal_grid(ctx);
-  };
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const circumference1 = (ctx) => {
-    ctx.strokeStyle = "black";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(0, 0, val * 22, val * 30);
-  };
+		ctx.translate(lineWidth, val + lineWidth);
 
-  const circumference = (ctx) => {
-    
-	ctx.lineWidth = 4;
-	
-	let x = 0;
-	
-	draw_line(ctx, x , 0, x, val * 2, "red");
-	draw_line(ctx, x, val*2, x, val * 6, "yellow");
-	draw_line(ctx, x, val*6, x, val * 15, "green");
-	draw_line(ctx, x, val*15, x, val * 24, "green");
-	draw_line(ctx, x, val*24, x, val * 28, "yellow");
-	draw_line(ctx, x, val*28, x, val * 30, "red");
+		pool(ctx);
+	});
 
-	x = val * 22;
-	
-	draw_line(ctx, x , 0, x, val * 2, "red");
-	draw_line(ctx, x, val*2, x, val * 6, "yellow");
-	draw_line(ctx, x, val*6, x, val * 15, "green");
-	draw_line(ctx, x, val*15, x, val * 24, "green");
-	draw_line(ctx, x, val*24, x, val * 28, "yellow");
-	draw_line(ctx, x, val*28, x, val * 30, "red");
+	const pool = (ctx) => {
+		circumference(ctx);
+	};
 
+	const circumference = (ctx) => {
+		ctx.fillStyle = "#e7feff";
+		ctx.beginPath();
+		ctx.moveTo(0, 0);
+		ctx.lineTo(val * 9, 0);
+		ctx.lineTo(val * 9, -val);
+		ctx.lineTo(val * 13, -val);
+		ctx.lineTo(val * 13, 0);
+		ctx.lineTo(val * 22, 0);
+		ctx.lineTo(val * 22, val * 30);
+		ctx.lineTo(val * 13, val * 30);
+		ctx.lineTo(val * 13, val * 31);
+		ctx.lineTo(val * 9, val * 31);
+		ctx.lineTo(val * 9, val * 30);
+		ctx.lineTo(0, val * 30);
+		ctx.lineTo(0, 0);
+		ctx.fill();
 
+		ctx.lineCap = "square";
+		ctx.lineWidth = lineWidth;
 
-  
+		let x = 0;
 
-  
-  };
+		draw_line(ctx, x, 0, x, val * 2, "#e51a4c");
+		draw_line(ctx, x, val * 2, x, val * 6, "yellow");
+		draw_line(ctx, x, val * 6, x, val * 15, "green");
+		draw_line(ctx, x, val * 15, x, val * 24, "green");
+		draw_line(ctx, x, val * 24, x, val * 28, "yellow");
+		draw_line(ctx, x, val * 28, x, val * 30, "#e51a4c");
 
-  const vertical_grid = (ctx) => {
-    ctx.lineWidth = 1;
-    let y = val * 16;
+		x = val * 22;
 
-    draw_line(ctx, val, 0, val, y, "black");
-    draw_line(ctx, val * 3, 0, val * 3, y, "black");
-    draw_line(ctx, val * 5, 0, val * 5, y, "black");
-    draw_line(ctx, val * 7, 0, val * 7, y, "black");
-    draw_line(ctx, val * 9, 0, val * 9, y, "black");
-    draw_line(ctx, val * 11, 0, val * 11, y, "black");
-  };
+		draw_line(ctx, x, 0, x, val * 2, "#e51a4c");
+		draw_line(ctx, x, val * 2, x, val * 6, "yellow");
+		draw_line(ctx, x, val * 6, x, val * 15, "green");
+		draw_line(ctx, x, val * 15, x, val * 24, "green");
+		draw_line(ctx, x, val * 24, x, val * 28, "yellow");
+		draw_line(ctx, x, val * 28, x, val * 30, "#e51a4c");
 
-  const horizontal_grid = (ctx) => {
-    ctx.lineWidth = 1;
-    let x = val * 22;
-    draw_line(ctx, 0, val * 2, x, val * 2, "black");
-    draw_line(ctx, 0, val * 6, x, val * 6, "black");
-    draw_line(ctx, 0, val * 15, x, val * 15, "black");
-    draw_line(ctx, 0, val * 24, x, val * 24, "black");
-    draw_line(ctx, 0, val * 28, x, val * 28, "black");
-   
-  };
+		let y = 0;
 
-  const draw_line = (
-    ctx: any,
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-    color: string
-  ) => {
-	ctx.strokeStyle = color;
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
-  };
+		draw_line(ctx, 0, y, val * 9, y, "#0000cd");
+		draw_line(ctx, val * 9, y, val * 9, y - val, "#0000cd");
+		draw_line(ctx, val * 9, y - val, val * 13, y - val, "#0000cd");
+		draw_line(ctx, val * 13, y - val, val * 13, y, "#0000cd");
+		draw_line(ctx, val * 13, y, val * 22, y, "#0000cd");
+
+		y = val * 30;
+		draw_line(ctx, 0, y, val * 9, y, "#0000cd");
+		draw_line(ctx, val * 9, y, val * 9, y + val, "#0000cd");
+		draw_line(ctx, val * 9, y + val, val * 13, y + val, "#0000cd");
+		draw_line(ctx, val * 13, y + val, val * 13, y, "#0000cd");
+		draw_line(ctx, val * 13, y, val * 22, y, "#0000cd");
+	};
+
+	const draw_line = (
+		ctx: any,
+		x1: number,
+		y1: number,
+		x2: number,
+		y2: number,
+		color: string
+	) => {
+		ctx.strokeStyle = color;
+		ctx.beginPath();
+		ctx.moveTo(x1, y1);
+		ctx.lineTo(x2, y2);
+		ctx.stroke();
+	};
 </script>
 
-<div>
-  <canvas bind:this={canvas} />
-</div>
+<canvas bind:this={canvas} />
 
 <style>
+	:global(body) {
+		margin: 0;
+		/* padding: 0; */
+	}
 </style>
