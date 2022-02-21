@@ -16,6 +16,7 @@
 		ctx.translate(lineWidth, val + lineWidth);
 
 		pool(ctx);
+		circle(ctx);
 	});
 
 	const pool = (ctx) => {
@@ -90,6 +91,13 @@
 		ctx.moveTo(x1, y1);
 		ctx.lineTo(x2, y2);
 		ctx.stroke();
+	};
+
+	const circle = (ctx) => {
+		ctx.fillStyle = "blue";
+		ctx.beginPath();
+		ctx.arc(val * 11, val * 15, val * 0.6, 0, 2 * Math.PI);
+		ctx.fill();
 	};
 </script>
 
