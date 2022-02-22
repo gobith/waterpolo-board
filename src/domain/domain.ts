@@ -1,11 +1,13 @@
 export class Team {
   name: string;
   color: string;
+  font_color: string;
   players: Player[];
 
-  constructor(name: string, color: string, numberOfPlayersPerTeam: number) {
+  constructor(name: string, color: string, font_color: string , numberOfPlayersPerTeam: number) {
     this.name = name;
     this.color = color;
+    this.font_color = font_color;
     this.players = [];
     this.init_players(numberOfPlayersPerTeam);
   }
@@ -13,13 +15,18 @@ export class Team {
   init_players(numberOfPlayersPerTeam) {
     let y;
     if (this.isHome()) {
-      y = 5;
+      y = 4;
     } else {
-      y = 85;
+      y = 86;
     }
 
-    let keeper = new Player("keeper", 1, this, 30, y, new Keeper());
-    this.players.push(keeper);
+    this.players.push(new Player("keeper", 1, this, 30, y, new Keeper()));
+    this.players.push(new Player("", 2, this, 5, y, new Field()));
+    this.players.push(new Player("", 3, this, 12.5, y, new Field()));
+    this.players.push(new Player("", 4, this, 20, y, new Field()));
+    this.players.push(new Player("", 5, this, 40, y, new Field()));
+    this.players.push(new Player("", 6, this, 47.5, y, new Field()));
+    this.players.push(new Player("", 7, this, 55, y, new Field()));
   }
 
   isHome(): boolean {
@@ -68,7 +75,7 @@ export class Board {
     this.teams.push(blue_team);
     this.balls = [];
     this.balls.push(new Ball(30, 45));
-    this.scale = 6;
+    this.scale = 4;
     this.width = 60;
     this.height = 90;
   }
@@ -114,6 +121,9 @@ export class Player {
     ctx.beginPath();
     ctx.arc(0, 0, 2, 0, 2 * Math.PI);
     ctx.fill();
+    ctx.fillStyle = this.type.fontColor(this.team);
+    ctx.font = `3px serif`;
+    ctx.fillText(this.number, -0.9, 1);
     ctx.restore();
   }
 }
@@ -122,19 +132,26 @@ export class PlayerType {
   color(team): string {
     return team.color;
   }
+
+  fontColor(team): string {
+    return team.font_color;
+  }
 }
 
 export class Keeper extends PlayerType {
   color(team): string {
     return "red";
   }
+  fontColor(team): string {
+    return "black"
+  }
 }
 
 export class Field extends PlayerType {}
 
 export const new_board = (numberOfPlayersPerTeam: number) => {
-  let team_white = new Team("white", "white", numberOfPlayersPerTeam);
-  let team_blue = new Team("blue", "blue", numberOfPlayersPerTeam);
+  let team_white = new Team("white", "white", "black" , numberOfPlayersPerTeam);
+  let team_blue = new Team("blue", "blue", "white" , numberOfPlayersPerTeam);
   let board = new Board("board 1", team_white, team_blue);
   return board;
 };
