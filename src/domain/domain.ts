@@ -4,7 +4,12 @@ export class Team {
   font_color: string;
   players: Player[];
 
-  constructor(name: string, color: string, font_color: string , numberOfPlayersPerTeam: number) {
+  constructor(
+    name: string,
+    color: string,
+    font_color: string,
+    numberOfPlayersPerTeam: number
+  ) {
     this.name = name;
     this.color = color;
     this.font_color = font_color;
@@ -43,10 +48,12 @@ export class Team {
 export class Ball {
   x: number;
   y: number;
+  selected: boolean;
 
   constructor(x: number, y: number) {
     this.x = x;
     this.y = y;
+    this.selected = false;
   }
 
   displayOn(ctx) {
@@ -54,9 +61,13 @@ export class Ball {
     ctx.translate(this.x, this.y);
     ctx.fillStyle = "black";
     ctx.beginPath();
-    ctx.arc(0, 0, 1, 0, 2 * Math.PI);
+    ctx.arc(0, 0, 1.5, 0, 2 * Math.PI);
     ctx.fill();
     ctx.restore();
+  }
+
+  select(point) {
+    this.selected = true;
   }
 }
 
@@ -75,7 +86,7 @@ export class Board {
     this.teams.push(blue_team);
     this.balls = [];
     this.balls.push(new Ball(30, 45));
-    this.scale = 4;
+    this.scale = 6;
     this.width = 60;
     this.height = 90;
   }
@@ -88,6 +99,28 @@ export class Board {
       team.displayOn(ctx);
     });
   }
+
+  select(point) {
+    this.deselect();
+    this.balls.forEach((ball) => {
+      ball.select(point);
+    });
+    this.teams.forEach((team) => {
+      team.players.forEach((player) => {
+        player.select(point);
+      });
+    });
+  }
+  deselect() {
+    this.balls.forEach((ball) => {
+      ball.selected = false;
+    });
+    this.teams.forEach((team) => {
+      team.players.forEach((player) => {
+        player.selected = false;
+      });
+    });
+  }
 }
 
 export class Player {
@@ -97,6 +130,7 @@ export class Player {
   x: number;
   y: number;
   type: Keeper | Field;
+  selected: boolean;
 
   constructor(
     name: string,
@@ -112,6 +146,7 @@ export class Player {
     this.x = x;
     this.y = y;
     this.type = type;
+    this.selected = false;
   }
 
   displayOn(ctx) {
@@ -119,12 +154,20 @@ export class Player {
     ctx.translate(this.x, this.y);
     ctx.fillStyle = this.type.color(this.team);
     ctx.beginPath();
-    ctx.arc(0, 0, 2, 0, 2 * Math.PI);
+
+    let weight = 2.
+    if (this.selected) {weight = 3}
+
+    ctx.arc(0, 0, weight, 0, 2 * Math.PI);
     ctx.fill();
     ctx.fillStyle = this.type.fontColor(this.team);
     ctx.font = `3px serif`;
     ctx.fillText(this.number, -0.9, 1);
     ctx.restore();
+  }
+
+  select(point) {
+    this.selected = true;
   }
 }
 
@@ -143,15 +186,15 @@ export class Keeper extends PlayerType {
     return "red";
   }
   fontColor(team): string {
-    return "black"
+    return "black";
   }
 }
 
 export class Field extends PlayerType {}
 
 export const new_board = (numberOfPlayersPerTeam: number) => {
-  let team_white = new Team("white", "white", "black" , numberOfPlayersPerTeam);
-  let team_blue = new Team("blue", "blue", "white" , numberOfPlayersPerTeam);
+  let team_white = new Team("white", "white", "black", numberOfPlayersPerTeam);
+  let team_blue = new Team("blue", "blue", "white", numberOfPlayersPerTeam);
   let board = new Board("board 1", team_white, team_blue);
   return board;
 };

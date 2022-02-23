@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { Team } from "../domain/domain";
   export let board;
   let canvas;
   let ctx;
@@ -14,12 +15,37 @@
   onMount(() => {
     ctx = canvas.getContext("2d");
 
+    canvas.onpointerdown = pointerdown_handler;
+    canvas.onpointermove = pointermove_handler;
+    canvas.onpointerup = pointerup_handler;
+
     canvas.height = height;
     canvas.width = width;
 
     ctx.scale(scale, scale);
 
+    displayOn(ctx);
+  });
+
+  const draw_line = (
+    ctx: any,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    color: string
+  ) => {
+    ctx.strokeStyle = color;
     ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  };
+
+  const displayOn = (ctx) => {
+    ctx.save();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     ctx.strokeStyle = "black";
     ctx.strokeRect(0, 0, initialWidth, initialHeight);
 
@@ -44,22 +70,42 @@
     draw_line(ctx, 60, 72, 60, 84, "yellow");
     draw_line(ctx, 60, 84, 60, 90, "#e51a4c");
 
-    board.displayOn(ctx)
-  });
+    board.displayOn(ctx);
+    ctx.restore();
+  };
 
-  const draw_line = (
-    ctx: any,
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-    color: string
-  ) => {
-    ctx.strokeStyle = color;
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
+  const relativePoint = (event) => {
+    return {
+      x: (event.pageX - event.target.offsetLeft) / scale,
+      y: (event.pageY - event.target.offsetTop) / scale,
+    };
+  };
+
+  const pointerdown_handler = (event) => {
+    
+  let point = relativePoint(event);
+  board.select(point)
+  displayOn(ctx);
+
+    
+  };
+
+  const pointermove_handler = (event) => {
+    if (event.buttons !== 1) {
+      return;
+    }
+    board.balls[0].x = (event.pageX - event.target.offsetLeft) / scale;
+    board.balls[0].y = (event.pageY - event.target.offsetTop) / scale;
+    displayOn(ctx);
+  };
+
+  const pointerup_handler = (event) => {
+
+   
+  board.deselect();
+  displayOn(ctx)
+  
+
   };
 </script>
 
