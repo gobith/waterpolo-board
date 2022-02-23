@@ -82,30 +82,22 @@
   };
 
   const pointerdown_handler = (event) => {
-    
-  let point = relativePoint(event);
-  board.select(point)
-  displayOn(ctx);
-
-    
+    let point = relativePoint(event);
+    board.select(point);
+    displayOn(ctx);
   };
 
   const pointermove_handler = (event) => {
     if (event.buttons !== 1) {
       return;
     }
-    board.balls[0].x = (event.pageX - event.target.offsetLeft) / scale;
-    board.balls[0].y = (event.pageY - event.target.offsetTop) / scale;
+    board.move_selected(relativePoint(event));
     displayOn(ctx);
   };
 
   const pointerup_handler = (event) => {
-
-   
-  board.deselect();
-  displayOn(ctx)
-  
-
+    board.deselect();
+    displayOn(ctx);
   };
 </script>
 

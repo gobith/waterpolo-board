@@ -45,15 +45,52 @@ export class Team {
   }
 }
 
-export class Ball {
+export class Piece {
   x: number;
   y: number;
   selected: boolean;
-
   constructor(x: number, y: number) {
+
     this.x = x;
     this.y = y;
     this.selected = false;
+
+  }
+
+  radius() {
+    return 1
+  }
+
+  select(point) {
+    this.selected = this.isInside(this.x, this.y, this.radius(), point.x, point.y);
+  }
+
+  isInside(circle_x: number, circle_y: number, rad: number, x: number, y: number) {
+    if ((x - circle_x) * (x - circle_x) +
+      (y - circle_y) * (y - circle_y) <= rad * rad)
+      return true;
+    else
+      return false;
+  }
+
+  move_selected(point) {
+    if (this.selected) {
+      this.x = point.x;
+      this.y = point.y;
+    }
+  }
+}
+
+
+export class Ball extends Piece {
+  constructor(x: number, y: number) {
+    super(x, y)
+  }
+
+  radius() {
+    let radius = 1.5
+    if (this.selected) { radius = 2 };
+    return radius
   }
 
   displayOn(ctx) {
@@ -65,9 +102,53 @@ export class Ball {
     ctx.fill();
     ctx.restore();
   }
+}
 
-  select(point) {
-    this.selected = true;
+
+export class Player extends Piece {
+  name: string;
+  number: number;
+  team: Team;
+  type: Keeper | Field;
+  constructor(
+    name: string,
+    number: number,
+    team: Team,
+    x: number,
+    y: number,
+    type: Keeper | Field
+  ) {
+    super(x, y)
+    this.name = name;
+    this.number = number;
+    this.team = team;
+    this.type = type;
+
+  }
+
+  radius() {
+    let radius = 2
+    if (this.selected) { radius = 3 };
+    return radius
+  }
+
+  weight() {
+    let weight = 3
+    if (this.selected) { weight = 4 };
+    return weight
+  }
+
+  displayOn(ctx) {
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.fillStyle = this.type.color(this.team);
+    ctx.beginPath();
+    ctx.arc(0, 0, this.radius(), 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.fillStyle = this.type.fontColor(this.team);
+    ctx.font = `${this.weight()}px serif`;
+    ctx.fillText(this.number, -0.9, 1);
+    ctx.restore();
   }
 }
 
@@ -121,55 +202,22 @@ export class Board {
       });
     });
   }
+
+  move_selected(point) {
+
+    this.balls.forEach((ball) => {
+      ball.move_selected(point);
+    });
+    this.teams.forEach((team) => {
+      team.players.forEach((player) => {
+        player.move_selected(point);
+      });
+    });
+
+  }
+
 }
 
-export class Player {
-  name: string;
-  number: number;
-  team: Team;
-  x: number;
-  y: number;
-  type: Keeper | Field;
-  selected: boolean;
-
-  constructor(
-    name: string,
-    number: number,
-    team: Team,
-    x: number,
-    y: number,
-    type: Keeper | Field
-  ) {
-    this.name = name;
-    this.number = number;
-    this.team = team;
-    this.x = x;
-    this.y = y;
-    this.type = type;
-    this.selected = false;
-  }
-
-  displayOn(ctx) {
-    ctx.save();
-    ctx.translate(this.x, this.y);
-    ctx.fillStyle = this.type.color(this.team);
-    ctx.beginPath();
-
-    let weight = 2.
-    if (this.selected) {weight = 3}
-
-    ctx.arc(0, 0, weight, 0, 2 * Math.PI);
-    ctx.fill();
-    ctx.fillStyle = this.type.fontColor(this.team);
-    ctx.font = `3px serif`;
-    ctx.fillText(this.number, -0.9, 1);
-    ctx.restore();
-  }
-
-  select(point) {
-    this.selected = true;
-  }
-}
 
 export class PlayerType {
   color(team): string {
@@ -190,7 +238,7 @@ export class Keeper extends PlayerType {
   }
 }
 
-export class Field extends PlayerType {}
+export class Field extends PlayerType { }
 
 export const new_board = (numberOfPlayersPerTeam: number) => {
   let team_white = new Team("white", "white", "black", numberOfPlayersPerTeam);
