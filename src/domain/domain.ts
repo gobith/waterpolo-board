@@ -49,10 +49,12 @@ export class Piece {
   x: number;
   y: number;
   selected: boolean;
+  radius: number;
   constructor(x: number, y: number) {
     this.x = x;
     this.y = y;
     this.selected = false;
+    this.radius = 1;
   }
 
   displayOn(ctx) {
@@ -66,15 +68,13 @@ export class Piece {
   displaySelectedOn(ctx) {}
   displayDeselectedOn(ctx) {}
 
-  radius() {
-    return 1;
-  }
+  
 
   select(point) {
     this.selected = this.isInside(
       this.x,
       this.y,
-      this.radius(),
+      this.radius,
       point.x,
       point.y
     );
@@ -106,6 +106,7 @@ export class Piece {
 export class Ball extends Piece {
   constructor(x: number, y: number) {
     super(x, y);
+    this.radius = 2
   }
 
   displaySelectedOn(ctx) {
@@ -146,6 +147,7 @@ export class Player extends Piece {
     this.number = number;
     this.team = team;
     this.type = type;
+    this.radius = 2;
   }
 
   displaySelectedOn(ctx) {
@@ -166,7 +168,7 @@ export class Player extends Piece {
     ctx.translate(this.x, this.y);
     ctx.fillStyle = this.type.color(this.team);
     ctx.beginPath();
-    ctx.arc(0, 0, 2, 0, 2 * Math.PI);
+    ctx.arc(0, 0, this.radius, 0, 2 * Math.PI);
     ctx.fill();
     ctx.fillStyle = this.type.fontColor(this.team);
     ctx.font = `3px serif`;
@@ -191,7 +193,7 @@ export class Board {
     this.teams.push(blue_team);
     this.balls = [];
     this.balls.push(new Ball(30, 45));
-    this.scale = 6;
+    this.scale = 1;
     this.width = 60;
     this.height = 90;
     this.pieces = [];
