@@ -50,27 +50,49 @@ export class Piece {
   y: number;
   selected: boolean;
   constructor(x: number, y: number) {
-
     this.x = x;
     this.y = y;
     this.selected = false;
-
   }
 
+  displayOn(ctx) {
+    if (this.selected) {
+      this.displaySelectedOn(ctx);
+    } else {
+      this.displayDeselectedOn(ctx);
+    }
+  }
+
+  displaySelectedOn(ctx) {}
+  displayDeselectedOn(ctx) {}
+
   radius() {
-    return 1
+    return 1;
   }
 
   select(point) {
-    this.selected = this.isInside(this.x, this.y, this.radius(), point.x, point.y);
+    this.selected = this.isInside(
+      this.x,
+      this.y,
+      this.radius(),
+      point.x,
+      point.y
+    );
   }
 
-  isInside(circle_x: number, circle_y: number, rad: number, x: number, y: number) {
-    if ((x - circle_x) * (x - circle_x) +
-      (y - circle_y) * (y - circle_y) <= rad * rad)
+  isInside(
+    circle_x: number,
+    circle_y: number,
+    rad: number,
+    x: number,
+    y: number
+  ) {
+    if (
+      (x - circle_x) * (x - circle_x) + (y - circle_y) * (y - circle_y) <=
+      rad * rad
+    )
       return true;
-    else
-      return false;
+    else return false;
   }
 
   move_selected(point) {
@@ -81,19 +103,21 @@ export class Piece {
   }
 }
 
-
 export class Ball extends Piece {
   constructor(x: number, y: number) {
-    super(x, y)
+    super(x, y);
   }
 
-  radius() {
-    let radius = 1.5
-    if (this.selected) { radius = 2 };
-    return radius
+  displaySelectedOn(ctx) {
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.fillStyle = "black";
+    ctx.beginPath();
+    ctx.arc(0, 0, 2, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.restore();
   }
-
-  displayOn(ctx) {
+  displayDeselectedOn(ctx) {
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.fillStyle = "black";
@@ -103,7 +127,6 @@ export class Ball extends Piece {
     ctx.restore();
   }
 }
-
 
 export class Player extends Piece {
   name: string;
@@ -118,35 +141,35 @@ export class Player extends Piece {
     y: number,
     type: Keeper | Field
   ) {
-    super(x, y)
+    super(x, y);
     this.name = name;
     this.number = number;
     this.team = team;
     this.type = type;
-
   }
 
-  radius() {
-    let radius = 2
-    if (this.selected) { radius = 3 };
-    return radius
-  }
-
-  weight() {
-    let weight = 3
-    if (this.selected) { weight = 4 };
-    return weight
-  }
-
-  displayOn(ctx) {
+  displaySelectedOn(ctx) {
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.fillStyle = this.type.color(this.team);
     ctx.beginPath();
-    ctx.arc(0, 0, this.radius(), 0, 2 * Math.PI);
+    ctx.arc(0, 0, 3, 0, 2 * Math.PI);
     ctx.fill();
     ctx.fillStyle = this.type.fontColor(this.team);
-    ctx.font = `${this.weight()}px serif`;
+    ctx.font = `4px serif`;
+    ctx.fillText(this.number, -1.2, 1.3);
+    ctx.restore();
+  }
+
+  displayDeselectedOn(ctx) {
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.fillStyle = this.type.color(this.team);
+    ctx.beginPath();
+    ctx.arc(0, 0, 2, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.fillStyle = this.type.fontColor(this.team);
+    ctx.font = `3px serif`;
     ctx.fillText(this.number, -0.9, 1);
     ctx.restore();
   }
@@ -159,6 +182,7 @@ export class Board {
   scale: number;
   width: number;
   height: number;
+  pieces: (Player | Ball)[];
 
   constructor(name: string, white_team: Team, blue_team: Team) {
     this.name = name;
@@ -170,54 +194,41 @@ export class Board {
     this.scale = 6;
     this.width = 60;
     this.height = 90;
+    this.pieces = [];
+    this.balls.forEach((ball) => {
+      this.pieces.push(ball);
+    });
+    this.teams.forEach((team) => {
+      team.players.forEach((player) => {
+        this.pieces.push(player);
+      });
+    });
   }
 
   displayOn(ctx) {
-    this.balls.forEach((ball) => {
-      ball.displayOn(ctx);
-    });
-    this.teams.forEach((team) => {
-      team.displayOn(ctx);
+    this.pieces.forEach((piece) => {
+      piece.displayOn(ctx);
     });
   }
 
   select(point) {
     this.deselect();
-    this.balls.forEach((ball) => {
-      ball.select(point);
-    });
-    this.teams.forEach((team) => {
-      team.players.forEach((player) => {
-        player.select(point);
-      });
+    this.pieces.forEach((piece) => {
+      piece.select(point);
     });
   }
   deselect() {
-    this.balls.forEach((ball) => {
-      ball.selected = false;
-    });
-    this.teams.forEach((team) => {
-      team.players.forEach((player) => {
-        player.selected = false;
-      });
+    this.pieces.forEach((piece) => {
+      piece.selected = false;
     });
   }
 
   move_selected(point) {
-
-    this.balls.forEach((ball) => {
-      ball.move_selected(point);
+    this.pieces.forEach((piece) => {
+      piece.move_selected(point);
     });
-    this.teams.forEach((team) => {
-      team.players.forEach((player) => {
-        player.move_selected(point);
-      });
-    });
-
   }
-
 }
-
 
 export class PlayerType {
   color(team): string {
@@ -238,7 +249,7 @@ export class Keeper extends PlayerType {
   }
 }
 
-export class Field extends PlayerType { }
+export class Field extends PlayerType {}
 
 export const new_board = (numberOfPlayersPerTeam: number) => {
   let team_white = new Team("white", "white", "black", numberOfPlayersPerTeam);
