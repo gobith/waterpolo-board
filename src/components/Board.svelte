@@ -1,11 +1,14 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Team } from "../domain/domain";
-  export let board;
-  let canvas;
-  let ctx;
+  import type { Board } from "../domain/domain";
 
-  let scale = board.scale;
+  export let board: Board;
+  export let scale: number;
+  
+  let canvas: HTMLCanvasElement;
+  let ctx: CanvasRenderingContext2D;
+
+  
   let initialWidth = board.width;
   let initialHeight = board.height;
 

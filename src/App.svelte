@@ -6,7 +6,7 @@
 </script>
 
 {#each $boards as board}
-  <Board {board} />
+  <Board {board} scale={2}/>
 {/each}
 
 <style>

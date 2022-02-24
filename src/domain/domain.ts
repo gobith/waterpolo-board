@@ -193,7 +193,6 @@ export class Board {
     this.teams.push(blue_team);
     this.balls = [];
     this.balls.push(new Ball(30, 45));
-    this.scale = 1;
     this.width = 60;
     this.height = 90;
     this.pieces = [];
