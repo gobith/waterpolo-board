@@ -1,9 +1,13 @@
+<svelte:options accessors/>
+
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { Board } from "../domain/domain";
+  import type { Board , Dimension} from "../domain/domain";
 
   export let board: Board;
-  export let scale: number;
+  export let dimension: Dimension;
+
+  let scale = 8;
   
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
@@ -15,7 +19,18 @@
   let width = initialWidth * scale;
   let height = initialHeight * scale;
 
+ $: {
+   dimension;
+   if (ctx) {
+     const newScale = 4;
+     console.log(newScale);
+    ctx.scale(newScale, newScale)
+   }
+ }
+  
+
   onMount(() => {
+   
     ctx = canvas.getContext("2d");
 
     canvas.onpointerdown = pointerdown_handler;
@@ -109,5 +124,6 @@
 <style>
   canvas {
     background-color: #e7feff;
+    margin: auto;
   }
 </style>

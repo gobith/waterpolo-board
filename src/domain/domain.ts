@@ -68,8 +68,6 @@ export class Piece {
   displaySelectedOn(ctx) {}
   displayDeselectedOn(ctx) {}
 
-  
-
   select(point) {
     this.selected = this.isInside(
       this.x,
@@ -106,7 +104,7 @@ export class Piece {
 export class Ball extends Piece {
   constructor(x: number, y: number) {
     super(x, y);
-    this.radius = 2
+    this.radius = 2;
   }
 
   displaySelectedOn(ctx) {
@@ -257,4 +255,9 @@ export const new_board = (numberOfPlayersPerTeam: number) => {
   let team_blue = new Team("blue", "blue", "white", numberOfPlayersPerTeam);
   let board = new Board("board 1", team_white, team_blue);
   return board;
+};
+
+export type Dimension = {
+  height: number;
+  width: number;
 };
