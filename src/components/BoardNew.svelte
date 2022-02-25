@@ -1,71 +1,39 @@
-<svelte:options accessors/>
-
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { Board , Dimension} from "../domain/domain";
+  import { board } from "../stores/session-store";
 
-  export let board: Board;
-  export let dimension: Dimension;
-
-  let scale = 8;
-  
-  let canvas: HTMLCanvasElement;
-  let ctx: CanvasRenderingContext2D;
-
-  
-  let initialWidth = board.width;
-  let initialHeight = board.height;
-
-  let width = initialWidth * scale;
-  let height = initialHeight * scale;
-
- $: {
-   dimension;
-   if (ctx) {
-     const newScale = 4;
-     console.log(newScale);
-    ctx.scale(newScale, newScale)
-   }
- }
-  
+  let canvas;
+  let ctx;
+  let scale = 1;
 
   onMount(() => {
-   
+    window.onresize = resize;
     ctx = canvas.getContext("2d");
-
+    resize();
     canvas.onpointerdown = pointerdown_handler;
     canvas.onpointermove = pointermove_handler;
     canvas.onpointerup = pointerup_handler;
-
-    canvas.height = height;
-    canvas.width = width;
-
-    ctx.scale(scale, scale);
-
     displayOn(ctx);
+
   });
 
-  const draw_line = (
-    ctx: any,
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-    color: string
-  ) => {
-    ctx.strokeStyle = color;
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
+  const resize = () => {
+    console.log();
+    let height = Math.floor(window.innerHeight / 90);
+    let width = Math.floor(window.innerWidth / 60);
+    scale = Math.min(height, width);
+    canvas.height = scale * 90;
+    canvas.width = scale * 60;
+    displayOn(ctx)
   };
 
   const displayOn = (ctx) => {
     ctx.save();
+    ctx.scale(scale , scale);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     ctx.strokeStyle = "black";
-    ctx.strokeRect(0, 0, initialWidth, initialHeight);
+    ctx.strokeRect(0, 0, canvas.width, canvas.height);
 
     ctx.lineCap = "square";
 
@@ -88,8 +56,23 @@
     draw_line(ctx, 60, 72, 60, 84, "yellow");
     draw_line(ctx, 60, 84, 60, 90, "#e51a4c");
 
-    board.displayOn(ctx);
+    $board.displayOn(ctx);
     ctx.restore();
+  };
+
+  const draw_line = (
+    ctx: any,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    color: string
+  ) => {
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
   };
 
   const relativePoint = (event) => {
@@ -101,7 +84,7 @@
 
   const pointerdown_handler = (event) => {
     let point = relativePoint(event);
-    board.select(point);
+    $board.select(point);
     displayOn(ctx);
   };
 
@@ -109,12 +92,12 @@
     if (event.buttons !== 1) {
       return;
     }
-    board.move_selected(relativePoint(event));
+    $board.move_selected(relativePoint(event));
     displayOn(ctx);
   };
 
   const pointerup_handler = (event) => {
-    board.deselect();
+    $board.deselect();
     displayOn(ctx);
   };
 </script>
@@ -124,6 +107,7 @@
 <style>
   canvas {
     background-color: #e7feff;
-    
+    grid-column: 2;
+    grid-row: 2;
   }
 </style>
