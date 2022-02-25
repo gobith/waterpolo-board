@@ -12,7 +12,7 @@
       padding: 0;
       box-sizing: border-box;
       /* background-color: orange; */
-      background-color: #e7feff;
+      background-color: #4b4b4b;
     }
     :global(body) {
       margin: 0;
