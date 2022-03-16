@@ -12,6 +12,8 @@
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
 
+ 
+
   
   let initialWidth = board.width;
   let initialHeight = board.height;

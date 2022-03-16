@@ -1,7 +1,7 @@
 <script lang="ts">
     import Board from "./components/BoardNew.svelte";
     
-  
+
   </script>
 
   <Board />
